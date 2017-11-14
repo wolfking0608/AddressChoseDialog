@@ -1,5 +1,6 @@
 package com.sz.quxin.addresschosedialog.entry;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class AddressBean{
@@ -244,7 +245,7 @@ public class AddressBean{
                 private String  areaid;
                 private String  cityid;
                 private int     id;
-                private List<?> smallAreas;
+                private List<SmallAreasBean> smallAreas;
 
                 public String getArea() {
                     return area;
@@ -278,12 +279,68 @@ public class AddressBean{
                     this.id = id;
                 }
 
-                public List<?> getSmallAreas() {
+                public List<SmallAreasBean> getSmallAreas() {
                     return smallAreas;
                 }
 
-                public void setSmallAreas(List<?> smallAreas) {
+                public void setSmallAreas(List<SmallAreasBean> smallAreas) {
                     this.smallAreas = smallAreas;
+                }
+                public static class SmallAreasBean implements Serializable {
+                    private String areaid;
+                    private long createtime;
+                    private int id;
+                    private String name;
+                    private int sortorder;
+                    private boolean isCheck = false;//默认选中
+
+                    public String getAreaid() {
+                        return areaid;
+                    }
+
+                    public void setAreaid(String areaid) {
+                        this.areaid = areaid;
+                    }
+
+                    public long getCreatetime() {
+                        return createtime;
+                    }
+
+                    public void setCreatetime(long createtime) {
+                        this.createtime = createtime;
+                    }
+
+                    public int getId() {
+                        return id;
+                    }
+
+                    public void setId(int id) {
+                        this.id = id;
+                    }
+
+                    public String getName() {
+                        return name;
+                    }
+
+                    public void setName(String name) {
+                        this.name = name;
+                    }
+
+                    public int getSortorder() {
+                        return sortorder;
+                    }
+
+                    public void setSortorder(int sortorder) {
+                        this.sortorder = sortorder;
+                    }
+
+                    public boolean isCheck() {
+                        return isCheck;
+                    }
+
+                    public void setCheck(boolean check) {
+                        isCheck = check;
+                    }
                 }
             }
         }
