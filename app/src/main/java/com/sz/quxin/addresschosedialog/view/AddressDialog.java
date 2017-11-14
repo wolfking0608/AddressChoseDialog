@@ -76,11 +76,6 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
     private AddressAdapter adapter;
     private Context        mContext;
 
-    public AddressDialog(Activity context) {
-        super(context, R.style.bottom_dialog);
-        mActivity = context;
-    }
-
     public AddressDialog(Activity context, AddressBean c, OnEndSelectItemListener l) {
         super(context, R.style.bottom_dialog);
         mActivity = context;
