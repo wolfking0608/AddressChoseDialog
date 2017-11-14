@@ -16,4 +16,5 @@ public class Constant {
         }
         return t;
     }
+    //public  static String address ="";//65535 string 常量池
 }
