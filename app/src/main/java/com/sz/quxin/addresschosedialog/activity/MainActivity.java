@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RequestQueue  mQueue;
     private boolean       finishFlag;
     private String resultMsg;
+    private Button btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //初始化视图
     protected void initView() {
-
+        btn=(Button) findViewById(R.id.btn);
     }
 
     //初始化数据
@@ -77,8 +78,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (finishFlag) {
             AddressDialog dialog = new AddressDialog(this, item, new AddressDialog.OnEndSelectItemListener() {
                 @Override
-                public void getItemListStr(String province, String city, String area, String areaId, List<AddressBean.DataBean.CitiesBean.AreasBean.SmallAreasBean> mSmallArea) {
-
+                public void getItemListStr(final String province, final String city, final String area, String areaId, List<AddressBean.DataBean.CitiesBean.AreasBean.SmallAreasBean> mSmallArea) {
+                    Log.e(TAG, "getItemListStr: province="+province+",city="+city+",area="+area+",areaId="+areaId );
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            btn.setText(province+city+area);
+                        }
+                    });
                 }
             });
             dialog.show();

@@ -16,6 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.sz.quxin.addresschosedialog.R;
@@ -66,7 +67,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
     private static final int COUNTYFLAG   = 3;
 
     //标记显示现在应该显示是哪个 是省还是市,还是区
-    private int currentFlag = -1;
+    private int currentFlag = 1;//默认值应该为-1
 
     //用来存储选择的省市区;
     private String curProvince;
@@ -76,6 +77,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
     private AddressAdapter adapter;
     private Context        mContext;
     private  ImageView iv_colse;
+    private ProgressBar progressBar;
 
     public AddressDialog(Activity context, AddressBean c, OnEndSelectItemListener l) {
         super(context, R.style.bottom_dialog);
@@ -116,17 +118,24 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
         textViewProvince = (TextView) findViewById(R.id.textViewProvince);//省份
         textViewCity = (TextView) findViewById(R.id.textViewCity);//城市
         textViewCounty = (TextView) findViewById(R.id.textViewCounty);//区 乡镇
-        textViewStreet = (TextView) findViewById(R.id.textViewStreet);//街道
+       // textViewStreet = (TextView) findViewById(R.id.textViewStreet);//街道
         iv_colse= (ImageView) findViewById(R.id.iv_colse);
+        progressBar=(ProgressBar) findViewById(R.id.progressBar);
     }
 
     //初始化数据
     private void initData() {
         if (mCityBean != null && mCityBean.getData() != null) {
-            adapter = new AddressAdapter(mActivity, mCityBean.getData());
+            data = mCityBean.getData();
+            adapter = new AddressAdapter(mActivity, data);
+            progressBar.setVisibility(View.GONE);
+        }else{
+            ToastUtil.show(mContext,"请求回来的地址为空!");
         }
 
         listView.setAdapter(adapter);
+        textViewProvince.setText("请选择");
+        textViewProvince.setVisibility(View.VISIBLE);
     }
 
     //初始化事件
@@ -140,26 +149,44 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        currentIndex=position;
         switch (currentFlag) {
             case PROVINCEFLAG:
                 AddressBean.DataBean item = (AddressBean.DataBean) adapter.getItem(position);
                 provinceIndex = position;
                 curProvince = item.getProvince();
+                textViewProvince.setText(curProvince);
+                textViewCity.setVisibility(View.VISIBLE);
+                cities=item.getCities();
+                currentFlag=CITYFLAG;
+
+
                 break;
             case CITYFLAG:
                 AddressBean.DataBean.CitiesBean citiesBean = (AddressBean.DataBean.CitiesBean) adapter.getItem(position);
                 curCity = citiesBean.getCity();
                 cityIndex = position;
+                textViewCity.setText(curCity);
+                textViewCounty.setVisibility(View.VISIBLE);
+                areas=citiesBean.getAreas();
+                currentFlag=COUNTYFLAG;
+
                 break;
             case COUNTYFLAG:
                 AddressBean.DataBean.CitiesBean.AreasBean areasBean = (AddressBean.DataBean.CitiesBean.AreasBean) adapter.getItem(position);
                 countyIndex = position;
                 curArea = areasBean.getArea();
+                textViewCounty.setText(curArea);
+                curAreaId=areasBean.getAreaid();
+                //回调数据到MainActivity
+                listener.getItemListStr(curProvince,curCity,curArea,curAreaId,smallAreasBeanList);
+                dismiss();
                 break;
             default:
                 ToastUtil.show(mActivity, "程序逻辑有问题:currentFlag==" + currentFlag);
                 break;
         }
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -173,7 +200,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
                 break;
             case R.id.textViewCounty://区
                 currentFlag = COUNTYFLAG;
-                listener.getItemListStr(curProvince,curCity,curArea,curAreaId,smallAreasBeanList);
+
                 break;
             case R.id.iv_colse:
                 dismiss();
@@ -194,6 +221,8 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
 
         private Activity                   mActivity;
         private List<AddressBean.DataBean> mData;
+        private  List<AddressBean.DataBean.CitiesBean> mMCities;
+        private  List<AddressBean.DataBean.CitiesBean.AreasBean> mMAreas;
 
         public AddressAdapter(Activity activity, List<AddressBean.DataBean> data) {
 
@@ -220,10 +249,10 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
                     case CITYFLAG:
                         AddressBean.DataBean dataBean = data.get(currentIndex);
                         if (dataBean != null) {
-                            cities = dataBean.getCities();
-                            if (cities != null) {
-                                if (cities.size() > 0) {
-                                    return cities.size();
+                            mMCities = dataBean.getCities();
+                            if (mMCities != null) {
+                                if (mMCities.size() > 0) {
+                                    return mMCities.size();
                                 } else {
                                     ToastUtil.show(mContext, "服务器,市的集合为0");
                                 }
@@ -236,12 +265,12 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
 
                         break;
                     case COUNTYFLAG:
-                        AddressBean.DataBean.CitiesBean citiesBean = cities.get(currentIndex);
+                        AddressBean.DataBean.CitiesBean citiesBean = mMCities.get(currentIndex);
                         if (citiesBean != null) {
-                            areas = citiesBean.getAreas();
-                            if (areas != null) {
-                                if (areas.size() > 0) {
-                                    return areas.size();
+                            mMAreas = citiesBean.getAreas();
+                            if (mMAreas != null) {
+                                if (mMAreas.size() > 0) {
+                                    return mMAreas.size();
                                 } else {
                                     ToastUtil.show(mContext, "服务器,区的集合为0");
                                 }
@@ -253,7 +282,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
                         }
                         break;
                     default:
-                        ToastUtil.show(mActivity, "程序逻辑有问题:currentFlag==" + currentFlag);
+                        ToastUtil.show(mActivity, "程序逻辑有问题getCount():currentFlag==" + currentFlag);
                         break;
                 }
             } else {
@@ -267,11 +296,11 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
             if (mCityBean != null) {
                 switch (currentFlag) {
                     case PROVINCEFLAG://省
-                        if (data != null) {
-                            if (data.size() > position) {
-                                return data.get(position);
+                        if (mData != null) {
+                            if (mData.size() > position) {
+                                return mData.get(position);
                             } else {
-                                ToastUtil.show(mContext, "程序出问题");
+                                ToastUtil.show(mContext, "getItem()程序出问题");
                             }
                         } else {
                             ToastUtil.show(mContext, "服务器,省的集合为空");
@@ -281,7 +310,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
                     case CITYFLAG://市
                         if (cities != null) {
                             if (cities != null) {
-                                if (cities.size() > position) {
+                                if (mMCities.size() > position) {
                                     return cities.get(position);
                                 } else {
                                     ToastUtil.show(mContext, "程序出问题");
@@ -342,16 +371,16 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
             /********************设置数据 start: **************************/
             switch (currentFlag) {
                 case PROVINCEFLAG://省
-                    AddressBean.DataBean dataBean = data.get(position);
+                    AddressBean.DataBean dataBean = mData.get(position);
                     String province = dataBean.getProvince();
                     holder.item_address_tv.setText(province);
                     break;
                 case CITYFLAG://市
-                    AddressBean.DataBean.CitiesBean citiesBean = cities.get(position);
+                    AddressBean.DataBean.CitiesBean citiesBean = mMCities.get(position);
                     holder.item_address_tv.setText(citiesBean.getCity());
                     break;
                 case COUNTYFLAG://区
-                    AddressBean.DataBean.CitiesBean.AreasBean areasBean = areas.get(position);
+                    AddressBean.DataBean.CitiesBean.AreasBean areasBean = mMAreas.get(position);
                     holder.item_address_tv.setText(areasBean.getArea());
                     break;
                 default:

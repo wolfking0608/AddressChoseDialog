@@ -24,7 +24,7 @@
         <item name="android:background">#eaeaea</item>
     </style>
     <style name="tab">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">100dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
