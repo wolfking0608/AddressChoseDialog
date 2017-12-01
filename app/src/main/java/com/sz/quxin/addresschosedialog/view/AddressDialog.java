@@ -75,6 +75,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
     private String curAreaId;
     private AddressAdapter adapter;
     private Context        mContext;
+    private  ImageView iv_colse;
 
     public AddressDialog(Activity context, AddressBean c, OnEndSelectItemListener l) {
         super(context, R.style.bottom_dialog);
@@ -116,6 +117,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
         textViewCity = (TextView) findViewById(R.id.textViewCity);//城市
         textViewCounty = (TextView) findViewById(R.id.textViewCounty);//区 乡镇
         textViewStreet = (TextView) findViewById(R.id.textViewStreet);//街道
+        iv_colse= (ImageView) findViewById(R.id.iv_colse);
     }
 
     //初始化数据
@@ -133,6 +135,7 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
         textViewProvince.setOnClickListener(this);
         textViewCity.setOnClickListener(this);
         textViewCounty.setOnClickListener(this);
+        iv_colse.setOnClickListener(this);
     }
 
     @Override
@@ -171,6 +174,9 @@ public class AddressDialog extends Dialog implements AdapterView.OnItemClickList
             case R.id.textViewCounty://区
                 currentFlag = COUNTYFLAG;
                 listener.getItemListStr(curProvince,curCity,curArea,curAreaId,smallAreasBeanList);
+                break;
+            case R.id.iv_colse:
+                dismiss();
                 break;
             default:
                 break;

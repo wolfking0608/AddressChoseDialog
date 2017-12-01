@@ -20,10 +20,13 @@ import com.sz.quxin.addresschosedialog.utils.Constant;
 import com.sz.quxin.addresschosedialog.utils.ToastUtil;
 import com.sz.quxin.addresschosedialog.view.AddressDialog;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.R.attr.name;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private StringRequest mRequest;
     private RequestQueue  mQueue;
     private boolean       finishFlag;
+    private String resultMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,9 +98,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onResponse(String result) {
                 Log.e(TAG, "onResponse: result=====" + result);
                 if (result != null) {
+                    try {
+                        resultMsg= new String(result.getBytes("ISO8859-1"),"utf-8");
+                        Log.e(TAG, "onResponse: resultMsg=====" + resultMsg);
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e(TAG, "onResponse: ==================="+e.getMessage() );
+                        e.printStackTrace();
+                    }
+
                     Message msg = handler.obtainMessage();
                     msg.what = 100;
-                    msg.obj = result;
+                    msg.obj = resultMsg;
                     handler.sendMessage(msg);
                 } else {
                     Message msg = handler.obtainMessage();
