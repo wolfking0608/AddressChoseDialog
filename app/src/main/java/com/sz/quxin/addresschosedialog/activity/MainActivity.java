@@ -26,7 +26,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.R.attr.name;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -35,13 +35,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String loadUrl = "http://www2.hxinside.com:9998/uc_r2/user/getAreas?terminal=android&version=1.01";
     @BindView(R.id.btn)
     Button mBtn;
-    private AddressBean   item;
-    private Context       context;
-    private StringRequest mRequest;
-    private RequestQueue  mQueue;
-    private boolean       finishFlag;
-    private String resultMsg;
-    private Button btn;
+    private         AddressBean                                              item;
+    private         Context                                                  context;
+    private         StringRequest                                            mRequest;
+    private         RequestQueue                                             mQueue;
+    private         boolean                                                  finishFlag;
+    private         String                                                   resultMsg;
+    private         Button                                                   btn;
+    private  static AddressBean.DataBean.CitiesBean.AreasBean areasBean;//用于回显
+
+    private String curProvince;
+    private String curCity;
+    private String curArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +81,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (finishFlag) {
-            AddressDialog dialog = new AddressDialog(this, item, new AddressDialog.OnEndSelectItemListener() {
+//这里需要传递一个省 市 区过去用于状态回显
+
+            AddressDialog dialog = new AddressDialog(this, item,curProvince,curCity,curArea, new AddressDialog.OnEndSelectItemListener() {
                 @Override
-                public void getItemListStr(final String province, final String city, final String area, String areaId, List<AddressBean.DataBean.CitiesBean.AreasBean.SmallAreasBean> mSmallArea) {
+                public void getItemListStr(final String province, final String city, final String area, String areaId, AddressBean.DataBean.CitiesBean.AreasBean mSmallArea) {
                     Log.e(TAG, "getItemListStr: province="+province+",city="+city+",area="+area+",areaId="+areaId );
+                    curProvince=province;
+                    curCity=city;
+                    curArea=area;
+                    areasBean= mSmallArea;
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
